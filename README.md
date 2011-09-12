@@ -20,18 +20,22 @@ To create the images of the ayats, pango-view is required. To install it on ubun
 ### Database Creation
 
 QuranApp uses a number of data files from http://tanzil.net. The following files should be placed the data/ directory:
+
     quran-data.xml from http://tanzil.net/wiki/Quran_Metadata
     quran-uthmani.xml from http://tanzil.net/download
     en.hilali.xml from http://tanzil.net/trans/
 
 Now setup the proper URL to the database in the quranapp/config.py file.
 Then create the database using the following command:
+
     fab create_db
 To setup the debug or mysql_dev databases, use 'debug' or 'mysql_dev' such as in:
+
     fab debug create_db
 
 ### Testing
 To start the development server, run:
+
     fab run
 
 Deployment
@@ -40,10 +44,12 @@ Deployment
 ### Compile and minify static files
 QuranApp uses LESS-CSS and Google Closure Compiler. 
 Install the LESS compiler using npm:
+
     npm install less
 Download the Closure Compiler from http://closure-compiler.googlecode.com/files/compiler-latest.zip and save the .jar file to tools/compiler.jar
 
 Then run the following commands to create the minified versions of static files:
+
     fab compile_css
     fab compile_js
 
