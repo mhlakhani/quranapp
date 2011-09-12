@@ -63,7 +63,7 @@ def main():
     create_db()
     add_surahs()
     add_ayats()
-    #create_images()
+    create_images()
 
 if __name__ == '__main__':
     main()
