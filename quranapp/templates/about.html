@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "topnavbar.html" as nav %}
+{% block title %}About{% endblock %}
+{% block topnavbar %}
+{{ nav.topnavbar(3) }}
+{% endblock %}
+{% block body %}
+<div class="container">
+<div class="row">
+	<h1>About</h1>
+	<p>QuranApp was made to help people create collections of various Ayats for distribution.</p>
+    <h1>Contact</h1>
+    <p>For any comments or suggestions, please email me at m [dot] hasnain [dot] lakhani [at] gmail [dot] com</p>
+</div>
+</div>
+{% endblock %}

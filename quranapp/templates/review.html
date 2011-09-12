@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% import "topnavbar.html" as nav %}
+{% block title %}Review Selection{% endblock %}
+{% block script %}
+{% if g.debug %}
+<script type="text/javascript" src="/static/js/jquery.tablednd_0_5.js"></script>
+{% endif %}
+<script type="text/javascript">
+    $(function() {
+            $("#duas").tableDnD({
+                onDrop: function(table, row) {
+                $(':hidden').filter(
+                    function() { return $(this).attr('id') === 'ordering';}
+                ).attr('value',$('#duas').tableDnDSerialize());},
+                })});
+    $('tr[isHandle|="true"]').hover(function() {
+          $(this.cells[0]).addClass('showDragHandle');
+    }, function() {
+          $(this.cells[0]).removeClass('showDragHandle');
+    });
+</script>
+{% endblock %}
+{% block topnavbar %}
+{{ nav.topnavbar(2) }}
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="span4 columns offset1">
+    <div class="alert-message block-message leftnavbar">
+        <p>Once you're done, hit the button below to save the ordering, and then download the document as PDF or HTML.</p>
+        <form method="post" action="{{ request.url }}">
+        <fieldset>
+            <input type="hidden" id="ordering" name="ordering" value=""></input>
+            <button type="submit" class="btn primary">Save Ordering</button>
+        </fieldset></form>
+        <form method="post" action="{{ url_for("create", format="pdf") }}">
+        <fieldset>
+                <button type="submit" class="btn primary">Download PDF</button>
+        </fieldset>
+        </form>
+        <form method="post" action="{{ url_for("create", format="html") }}">
+        <fieldset>
+                <button type="submit" class="btn primary">Download HTML</button>
+        </fieldset>
+        </form>
+    </div>
+</div>
+<div class="span10 columns offset1">
+    <h4>Settings</h4>
+    <ul class="tabs">
+        <li{% if settings_tab == "content" %} class="active"{% endif %}><a href="{{ url_for(request.endpoint, settings_tab="content") }}">Content</a></li>
+        <li{% if settings_tab == "notes" %} class="active"{% endif %}><a href="{{ url_for(request.endpoint, settings_tab="notes") }}">Notes</a></li>
+    </ul>
+    <div class="well settings-well">
+    {% if error_message %}
+        <div class="alert-message error">
+        <a href="#" class="close">×</a>
+        <p>{{ error_message }}</p>
+        </div>
+    {% endif %}
+    <form class="stacked" method="post" action="{{ request.url }}">
+    <fieldset>
+        <div class="clearfix">
+            {% if settings_tab == "content" %}
+            <label>Content Type</label>
+            <div class="input">
+                <ul class="inputs-list">
+                    <li>
+                        <label>
+                            <input type="checkbox" {% if include_arabic %}checked="checked"{% endif %} value="yes" name="include_arabic">
+                            <span>Include Arabic Verses</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" {% if include_english %}checked="checked"{% endif %} value="yes" name="include_english">
+                            <span>Include English Translation</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            {% elif settings_tab == "notes" %}
+            <label for="notes">Notes</label>
+            <div class="input">
+                <textarea class="xlarge" name="notes">{% if notes %}{{ notes }}{% endif %}</textarea>
+                <span class="help-block">Enter some text to appear at the start of the document.</span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="actions actions-well">
+            <button class="btn primary" type="submit">Save Changes</button>
+            <button class="btn" type="reset">Cancel</button>
+        </div>
+    </fieldset>
+    </form>
+    </div>
+</div>
+</div>
+<div class="row">
+<div class="span15 columns offset1">
+    <table class="common-table" id="duas">
+        <thead><tr><th colspan="3">Duas (Drag &amp; Drop to re-order)</th></tr></thead>
+		<tbody>
+            {% for item in items %}
+            {% if include_arabic and include_english %}
+            <tr id="duas-ayat-{{ item.id }}" isHandle="true">
+                <td class="dragHandle">  </td>
+                <td>
+            <table>
+            {% endif %}
+            <tr {% if not (include_arabic and include_english) %}isHandle="true" id="duas-ayat-{{ item.id }}"{% endif %}>
+                {% if include_arabic %}
+                <td {% if not include_english %}class="dragHandle"{% endif %}>{% if not include_english %}{{ item.surah_id }}:{{ item.number }}{% endif %}     </td>
+                <td><p class="arabic">{{ item.arabic }}</p></td>
+                <td {% if include_english %}rowspan="2"{% endif %}>
+                    <form action="{{ request.url }}" method="post">
+                        <input type="hidden" id="ordering" name="ordering" value=""></input>
+                        <input name="deselect" type="hidden" value="{{ item.id }}"></input>
+                        <button class="btn danger" type="submit">Deselect</button>
+                    </form>
+                </td>
+                {% endif %}
+            {% if include_arabic and include_english %}
+			</tr>
+            <tr>
+            {% endif %}
+            {% if include_english %}
+            {% if not include_arabic %}<td> </td>{% endif %}
+            <td {% if not include_arabic %}class="dragHandle"{% endif %}>{{ item.surah_id }}:{{ item.number }}   </td>
+                <td>{{ item.english }}</td>
+                {% if not include_arabic %}
+                <td>
+                    <form action="{{ request.url }}" method="post">
+                        <input type="hidden" id="ordering" name="ordering" value=""></input>
+                        <input name="deselect" type="hidden" value="{{ item.id }}"></input>
+                        <button class="btn danger" type="submit">Deselect</button>
+                    </form>
+                </td>
+                {% endif %}
+            {% endif %}
+            </tr>
+            {% if include_arabic and include_english %}
+            </td></table>
+            </tr>
+            {% endif %}
+            {% endfor %}
+		</tbody>
+    </table>
+</div>
+</div>
+<br>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% import "topnavbar.html" as nav %}
+{% block title %}Browse Quran{% endblock %}
+{% block topnavbar %}
+{{ nav.topnavbar(1) }}
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="span5 columns offset1">
+<div class="alert-message block-message leftnavbar">
+	<ul class="unstyled">
+        <li>Surah #{{ surah_no }}: {{ surah_name }}</li>
+		<br>
+        {% if surah_no > 1 %}
+        <li><a href="{{ url_for("browse", surah_no=surah_no - 1, page=1) }}">Previous Surah</a></li>
+        {% endif %}
+        {% if surah_no < 114 %}
+        <li><a href="{{ url_for("browse", surah_no=surah_no + 1, page=1) }}">Next Surah</a></li>
+        {% endif %}
+	</ul>
+    <form class="form-stacked" method="post" action="{{ url_for("browse", surah_no=surah_no, page=1) }}">
+		<fieldset>
+			<div class="clearfix">
+				<label for="">Go to Surah:</label>
+				<div class="input">
+                    <select name="surah_no">
+                        {% for surah in surah_list %}
+                            <option value="{{ surah.id }}" {% if surah.id == surah_no %} selected {% endif %} >{{ surah.name_english_transliterated }}</option>
+                            {% endfor %}
+					</select>
+				</div>
+			</div>
+            <div class="clearfix">
+                <label for="">Ayat:</label>
+                <div class="input">
+                    <input class="large" name="ayat_no" type="text" size="50" value="1" style="height:27px; line-height:27px;"></input>
+                </div>
+            </div>
+            <div>
+                <button class="btn primary" type="submit">Go</button>
+            </div>
+		</fieldset>
+	</form>
+</div>
+</div>
+<div class="span11 columns">
+    <table class="common-table">
+        <thead>
+            <tr><th colspan="3">{{ surah_name }}: Verses {{ pagination.items[0].number }} to {{ pagination.items[-1].number }}</th></tr>
+            {% if pagination.items[0].bismillah %}
+            <tr>
+                <th colspan="3"><p class="arabic">{{ pagination.items[0].bismillah }}</p></th>
+            </tr>
+            {% endif %}
+        </thead>
+		<tbody>
+            {% for item in pagination.items %}
+            <tr>
+                <td> </td>
+                <td style="margin-right: 20px;"><p class="arabic">{{ item.arabic }}</p></td>
+                <td rowspan="2">
+                    <form action="{{ request.url }}" method="post">
+                    {% if item.id in selected_ayats %}
+                        <input name="select" type="hidden" value="{{ item.id }}"></input>
+                        <button class="btn danger" type="submit">Deselect</button>
+                    {% else %}
+                        <input name="select" type="hidden" value="{{ item.id }}"></input>
+                        <button class="btn primary" type="submit">Select</button>
+                    {% endif %}
+                    </form>
+                </td>
+			</tr>
+			<tr>
+                <td><p>{{ item.number }}.</p></td>
+                <td><p>{{ item.english | safe }}</p></td>
+            </tr>
+            {% endfor %}
+		</tbody>
+    </table>
+    {% if pagination.pages > 1 %}
+    <div class="pagination">
+	  <ul>
+        <li class="prev {% if pagination.page == 1 %}disabled{% endif %}">
+        <a href="{% if pagination.page == 1 %}#{% else %}{{ url_for("browse", surah_no=surah_no, page=pagination.page-1) }}{% endif %}">&larr; Previous</a></li>
+        {% for page in pagination.iter_pages() %}
+            {% if page %}
+                {% if page == pagination.page %}
+                    <li class="active"><a href="#">{{ page }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for("browse", surah_no=surah_no, page=page) }}">{{ page }}</a></li>
+                {% endif %}
+            {% else %}
+                <li><a href="#">...</a></li>
+            {% endif %}
+        {% endfor %}
+        <li class="next {% if page == pagination.pages %}disabled{% endif %}">
+        <a href="{% if pagination.page == pagination.pages - 1 %}#{% else %}{{ url_for("browse", surah_no=surah_no, page=pagination.page+1) }}{% endif %}">Next &rarr;</a></li>
+	  </ul>
+    </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

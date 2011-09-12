@@ -1,0 +1,21 @@
+{% macro topnavbar(active_idx) %}
+<div class="topbar">
+    <div class="fill">
+        <div class="container">
+            <h3><a href="{{ url_for("index") }}">QuranApp</a></h3>
+            <ul>
+            {% for idx, endpoint, caption in 
+                [   (0, "index", "Home"),
+                    (1, "browse", "Browse Quran"),
+                    (2, "review", "Review Selection"),
+                    (3, "about", "About"),
+                ] %}
+                <li {% if idx == active_idx %} class="active" {% endif %}><a href="{{ url_for(endpoint) }}">{{ caption }}</a></li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+<br></br>
+<br></br>
+{% endmacro %}

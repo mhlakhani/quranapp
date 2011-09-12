@@ -1,0 +1,9 @@
+*.un~
+*.pyc
+quranapp/static/image/*.png
+conf/
+data/
+env/
+tools/
+quranapp/static/quranapp.css
+quranapp/static/quranapp.js
