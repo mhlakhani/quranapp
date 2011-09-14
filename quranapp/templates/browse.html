@@ -4,6 +4,13 @@
 {% block topnavbar %}
 {{ nav.topnavbar(1) }}
 {% endblock %}
+{% block script %}
+{% if post_ayat %}
+<script type="text/javascript">
+    document.getElementById('row-{{ post_ayat }}').scrollIntoView(true);
+</script>
+{% endif %}
+{% endblock %}
 {% block body %}
 <div class="row">
 <div class="span5 columns offset1">
@@ -55,7 +62,7 @@
         </thead>
 		<tbody>
             {% for item in pagination.items %}
-            <tr>
+            <tr id="row-{{ item.number }}">
                 <td> </td>
                 <td style="margin-right: 20px;"><p class="arabic">{{ item.arabic }}</p></td>
                 <td rowspan="2">

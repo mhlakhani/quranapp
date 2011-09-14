@@ -58,6 +58,8 @@ def browse(surah_no, page):
     surah_list = Surah.query.all()
     if post_ayat is not None and post_ayat <= surah.num_ayats and post_ayat > 0:
         page = (post_ayat - 1) / per_page + 1
+    if post_ayat == 1:
+        post_ayat = None
     pagination = surah.ayats.paginate(page=page, per_page=per_page)
     return render_template('browse.html', **locals())
 
