@@ -49,8 +49,8 @@ def add_ayats():
 
 def create_image(x):
     text = Ayat.query.get(x).arabic
-    path = os.path.join(os.getcwd(), 'quranapp', 'static', 'image', '%s.png' % x)
-    os.system('pango-view --font="Scheherazade 24" --no-display --width=500 --output="%s" --text="%s"' % (path, text.encode('utf-8')))
+    path = os.path.join(os.getcwd(), 'quranapp', 'static', 'image', '%s.jpeg' % x)
+    os.system('pango-view --font="Scheherazade 28" --no-display --width=600 --output="%s" --text="%s"' % (path, text.encode('utf-8')))
 
 def create_images():
     print 'Adding Images'
