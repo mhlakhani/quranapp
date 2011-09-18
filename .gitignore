@@ -1,6 +1,8 @@
 *.un~
 *.pyc
 quranapp/static/image/*.png
+quranapp/static/image/*.jpeg
+db.sqlite3
 conf/
 data/
 env/
