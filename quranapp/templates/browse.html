@@ -5,9 +5,9 @@
 {{ nav.topnavbar(1) }}
 {% endblock %}
 {% block script %}
-{% if post_ayat %}
+{% if jump_ayat %}
 <script type="text/javascript">
-    document.getElementById('row-{{ post_ayat }}').scrollIntoView(true);
+    document.getElementById('row-{{ jump_ayat }}').scrollIntoView(true);
 </script>
 {% endif %}
 {% endblock %}

@@ -37,6 +37,8 @@ def browse(surah_no, page):
     post_ayat = None
     per_page = 10
     selected_ayats = [] # FIXME: start using ordered sets here
+    surah = None
+    jump_ayat = None
     if session.get('selected') is not None and session.get('selected') != '':
         selected_ayats = [int(x) for x in session['selected'].split(':')]
     if request.method == 'POST':
@@ -50,16 +52,22 @@ def browse(surah_no, page):
                 selected_ayats = [x for x in selected_ayats if x != ayat]
             else:
                 selected_ayats.append(ayat)
+            jump_ayat = Ayat.query.get(ayat).number
             session['selected'] = ':'.join([str(x) for x in selected_ayats])
         if post_surah is not None and 1 <= post_surah <= 114:
             surah_no = post_surah
-    surah = Surah.query.get_or_404(surah_no)
+        surah = Surah.query.get_or_404(surah_no)
+        if post_ayat is not None and post_ayat <= surah.num_ayats and post_ayat > 0:
+            page = (post_ayat - 1) / per_page + 1
+            session['jump_ayat'] = post_ayat
+            return redirect(url_for("browse", surah_no=surah_no, page=page))
+    if session.get('jump_ayat') is not None:
+        jump_ayat = session['jump_ayat']
+        session['jump_ayat'] = None
+    if surah is None:
+        surah = Surah.query.get_or_404(surah_no)
     surah_name = surah.name_english_transliterated
     surah_list = Surah.query.all()
-    if post_ayat is not None and post_ayat <= surah.num_ayats and post_ayat > 0:
-        page = (post_ayat - 1) / per_page + 1
-    if post_ayat == 1:
-        post_ayat = None
     pagination = surah.ayats.paginate(page=page, per_page=per_page)
     return render_template('browse.html', **locals())
 
