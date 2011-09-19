@@ -84,14 +84,17 @@ def review():
     if settings_tab not in ['content', 'notes']:
         settings_tab = 'content'
     if request.method == 'POST':
-        if settings_tab == 'content' and request.form.get('deselect') is None and request.form.get('ordering') is None:
+        if request.form.get('deselect_all') is not None:
+            session['selected'] = ''
+            selected_ayats = []
+        if settings_tab == 'content' and request.form.get('deselect') is None and request.form.get('ordering') is None and request.form.get('deselect_all') is None:
             for key in choices:
                 session[key] = key in request.form.keys()
             if all([session[key] == False for key in choices]):
                 error_message = 'Please include English or Arabic (or both).'
                 for key in choices:
                     session[key] = True
-        if settings_tab == 'notes' and request.form.get('deselect') is None and request.form.get('ordering') is None:
+        if settings_tab == 'notes' and request.form.get('deselect') is None and request.form.get('ordering') is None and request.form.get('deselect_all') is None:
             session['notes'] = request.form.get('notes')
         if request.form.get('ordering') is not None and request.form.get('ordering') != '':
             ayats = request.form.get('ordering').split('&duas[]=')
