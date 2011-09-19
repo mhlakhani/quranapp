@@ -25,9 +25,6 @@ def run():
 def debug():
     os.environ['QURANAPP_CONFIG']="quranapp.config.DevelopmentConfig"
 
-def mysql_dev():
-    os.environ['QURANAPP_CONFIG']="quranapp.config.MySQLDevelopmentConfig"
-
 def deploy():
     if HAVE_CONF:
         conf.fabfile.deploy()

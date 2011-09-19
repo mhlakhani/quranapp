@@ -1,8 +1,9 @@
 from quranapp import app
-from quranapp.models import db, Ayat, Surah
+from quranapp.models import Ayat, Surah
 from flask import g, request, render_template, session, redirect, url_for, send_file
 from xhtml2pdf import pisa
 import logging, sys, os
+import redis
 
 try:
     import cStringIO as StringIO
@@ -22,6 +23,7 @@ def int_or_none(var, method='POST'):
 @app.before_request
 def before_request():
     g.debug = app.debug
+    g.redis = redis.Redis(host='localhost', port=6379)
 
 @app.route('/')
 def index():
@@ -52,11 +54,11 @@ def browse(surah_no, page):
                 selected_ayats = [x for x in selected_ayats if x != ayat]
             else:
                 selected_ayats.append(ayat)
-            jump_ayat = Ayat.query.get(ayat).number
+            jump_ayat = Ayat.get(ayat).number
             session['selected'] = ':'.join([str(x) for x in selected_ayats])
         if post_surah is not None and 1 <= post_surah <= 114:
             surah_no = post_surah
-        surah = Surah.query.get_or_404(surah_no)
+        surah = Surah.get_or_404(surah_no)
         if post_ayat is not None and post_ayat <= surah.num_ayats and post_ayat > 0:
             page = (post_ayat - 1) / per_page + 1
             session['jump_ayat'] = post_ayat
@@ -65,10 +67,10 @@ def browse(surah_no, page):
         jump_ayat = session['jump_ayat']
         session['jump_ayat'] = None
     if surah is None:
-        surah = Surah.query.get_or_404(surah_no)
+        surah = Surah.get_or_404(surah_no)
     surah_name = surah.name_english_transliterated
-    surah_list = Surah.query.all()
-    pagination = surah.ayats.paginate(page=page, per_page=per_page)
+    surah_list = Surah.get_all()
+    pagination = surah.get_ayats(page=page, per_page=per_page)
     return render_template('browse.html', **locals())
 
 @app.route('/review/', methods=['GET', 'POST'])
@@ -106,7 +108,7 @@ def review():
             selected_ayats = [x for x in selected_ayats if x != ayat]
             session['selected'] = ':'.join([str(x) for x in selected_ayats])
     locals().update(session)
-    items = Ayat.query.filter(Ayat.id.in_(selected_ayats)).all()
+    items = Ayat.get_many(selected_ayats)
     ordering = dict([(v,k) for (k,v) in enumerate(selected_ayats)])
     items.sort(key = lambda x: ordering[x.id])
     return render_template('review.html', **locals())
@@ -117,7 +119,7 @@ def create(format):
     if session.get('selected') is not None and session.get('selected') != '':
         selected_ayats = [int(x) for x in session['selected'].split(':')]
     locals().update(session)
-    items = Ayat.query.filter(Ayat.id.in_(selected_ayats)).all()
+    items = Ayat.get_many(selected_ayats)
     ordering = dict([(v,k) for (k,v) in enumerate(selected_ayats)])
     items.sort(key = lambda x: ordering[x.id])
     if format not in ['pdf', 'html']:
