@@ -67,7 +67,7 @@ def main():
     add_surahs()
     add_ayats()
     ctx.pop()
-    #create_images()
+    create_images()
 
 if __name__ == '__main__':
     main()
