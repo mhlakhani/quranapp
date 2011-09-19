@@ -2,9 +2,8 @@ import quranapp
 from quranapp.models import *
 import os
 from BeautifulSoup import BeautifulStoneSoup
-
-def create_db():
-    db.create_all()
+from flask import g
+import redis
 
 def add_surahs():
     print 'Adding Surahs'
@@ -18,8 +17,7 @@ def add_surahs():
         name_english_transliterated = entry['tname']
         num_ayas = entry['ayas']
         surah = Surah(id, name_arabic, name_english, name_english_transliterated, num_ayas)
-        db.session.add(surah)
-    db.session.commit()
+        surah.save()
     fil.close()
 
 def create_end_of_ayat(num):
@@ -32,6 +30,7 @@ def add_ayats():
     fil_english = open(os.path.join(os.getcwd(), 'data', 'en.hilali.xml'))
     soup_arabic = BeautifulStoneSoup(fil_arabic)
     soup_english = BeautifulStoneSoup(fil_english)
+    id = 1
     for surah_id in xrange(1,115):
         print 'Parsing Surah %s' % surah_id
         dat_arabic = soup_arabic.find('quran').find('sura', index=str(surah_id))
@@ -41,9 +40,9 @@ def add_ayats():
             arabic = entry['text']# + create_end_of_ayat(number)
             english = dat_english.find('aya', index=str(number))['text']
             bismillah = entry.get('bismillah', '')
-            ayat = Ayat(surah_id, number, arabic, english, bismillah)
-            db.session.add(ayat)
-        db.session.commit()
+            ayat = Ayat(id, surah_id, number, arabic, english, bismillah)
+            ayat.save()
+            id += 1
     fil_arabic.close()
     fil_english.close()
 
@@ -60,10 +59,13 @@ def create_images():
             print 'Adding Image %s' % x
 
 def main():
-    create_db()
+    ctx = quranapp.app.test_request_context()
+    ctx.push()
+    g.redis = redis.Redis(host='localhost', port=6379)
     add_surahs()
     add_ayats()
-    create_images()
+    ctx.pop()
+    #create_images()
 
 if __name__ == '__main__':
     main()
