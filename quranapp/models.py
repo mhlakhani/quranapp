@@ -55,7 +55,7 @@ class Surah(object):
 
     def get_ayats(self, page, per_page):
         start = (page - 1) * per_page
-        if start > self.num_ayats:
+        if start > self.num_ayats or start < 0:
             abort(404)
         end = min(start + per_page, self.num_ayats)
         start += self.start_ayat
