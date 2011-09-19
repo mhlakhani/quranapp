@@ -51,7 +51,7 @@ class Surah(object):
 
     def save(self):
         st = pickle.dumps(self)
-        g.redis.hset('quranapp:surahs', self.id, st)
+        g.redis.hset(app.config['DB_SURAH_KEY'], self.id, st)
 
     def get_ayats(self, page, per_page):
         start = (page - 1) * per_page
@@ -60,7 +60,7 @@ class Surah(object):
         end = min(start + per_page, self.num_ayats)
         start += self.start_ayat
         end += self.start_ayat
-        items = g.redis.hmget('quranapp:ayats', [x for x in xrange(start, end)])
+        items = g.redis.hmget(app.config['DB_AYAT_KEY'], [x for x in xrange(start, end)])
         items = map(pickle.loads, items)
         return Pagination(items, page, per_page, self.num_ayats)
 
@@ -69,19 +69,19 @@ class Surah(object):
 
     @staticmethod
     def get(id):
-        st = g.redis.hget('quranapp:surahs', id)
+        st = g.redis.hget(app.config['DB_SURAH_KEY'], id)
         return pickle.loads(st)
     
     @staticmethod
     def get_or_404(id):
-        st = g.redis.hget('quranapp:surahs', id)
+        st = g.redis.hget(app.config['DB_SURAH_KEY'], id)
         if st is None:
             abort(404)
         return pickle.loads(st)
 
     @staticmethod
     def get_all():
-        ret = g.redis.hgetall('quranapp:surahs')
+        ret = g.redis.hgetall(app.config['DB_SURAH_KEY'])
         lis = ret.items()
         lis.sort(key = lambda x: int(x[0]))
         return map(pickle.loads, [x[1] for x in lis])
@@ -98,16 +98,16 @@ class Ayat(object):
 
     def save(self):
         st = pickle.dumps(self)
-        g.redis.hset('quranapp:ayats', self.id, st)
+        g.redis.hset(app.config['DB_AYAT_KEY'], self.id, st)
 
     def __repr__(self):
         return '<Surah %s Ayat %s>' % (self.surah_id, self.number)
 
     @staticmethod
     def get(id):
-        st = g.redis.hget('quranapp:ayats', id)
+        st = g.redis.hget(app.config['DB_AYAT_KEY'], id)
         return pickle.loads(st)
 
     @staticmethod
     def get_many(ids):
-        return map(pickle.loads, [x for x in g.redis.hmget('quranapp:ayats', ids) if x is not None])
+        return map(pickle.loads, [x for x in g.redis.hmget(app.config['DB_AYAT_KEY'], ids) if x is not None])
