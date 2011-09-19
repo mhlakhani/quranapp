@@ -9,8 +9,5 @@ class DefaultConfig(object):
 class DevelopmentConfig(DefaultConfig):
     DEBUG = True
 
-class MySQLDevelopmentConfig(DevelopmentConfig):
-    SQLALCHEMY_DATABASE_URI = 'mysql://quranapp:quranapp@localhost/quranapp'
-
 class TestingConfig(DefaultConfig):
     TESTING = True
