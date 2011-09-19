@@ -110,4 +110,7 @@ class Ayat(object):
 
     @staticmethod
     def get_many(ids):
-        return map(pickle.loads, [x for x in g.redis.hmget(app.config['DB_AYAT_KEY'], ids) if x is not None])
+        if len(ids) > 0:
+            return map(pickle.loads, [x for x in g.redis.hmget(app.config['DB_AYAT_KEY'], ids) if x is not None])
+        else:
+            return []
