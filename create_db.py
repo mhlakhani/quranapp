@@ -10,14 +10,16 @@ def add_surahs():
     fil = open(os.path.join(os.getcwd(), 'data', 'quran-data.xml'))
     soup = BeautifulStoneSoup(fil)
     entries = soup.find('quran').find('suras').findAll('sura')
+    start_ayat = 1
     for entry in entries:
         id = int(entry['index'])
         name_arabic = entry['name']
         name_english = entry['ename']
         name_english_transliterated = entry['tname']
-        num_ayas = entry['ayas']
-        surah = Surah(id, name_arabic, name_english, name_english_transliterated, num_ayas)
+        num_ayats = int(entry['ayas'])
+        surah = Surah(id, name_arabic, name_english, name_english_transliterated, start_ayat, num_ayats)
         surah.save()
+        start_ayat += num_ayats
     fil.close()
 
 def create_end_of_ayat(num):
