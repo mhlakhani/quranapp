@@ -79,7 +79,7 @@ def review():
         selected_ayats = [int(x) for x in session['selected'].split(':')]
     for key in choices:
         if session.get(key) is None:
-            session[key] = True
+            session[key] = True if key == 'include_arabic' else False
     settings_tab = request.args.get('settings_tab', 'content')
     if settings_tab not in ['content', 'notes']:
         settings_tab = 'content'
