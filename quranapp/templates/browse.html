@@ -87,8 +87,8 @@
     {% if pagination.pages > 1 %}
     <div class="pagination">
 	  <ul>
-        <li class="prev {% if pagination.page == 1 %}disabled{% endif %}">
-        <a href="{% if pagination.page == 1 %}#{% else %}{{ url_for("browse", surah_no=surah_no, page=pagination.page-1) }}{% endif %}">&larr; Previous</a></li>
+        <li class="prev {% if not pagination.has_prev %}disabled{% endif %}">
+        <a href="{% if not pagination.has_prev %}#{% else %}{{ url_for("browse", surah_no=surah_no, page=pagination.page-1) }}{% endif %}">&larr; Previous</a></li>
         {% for page in pagination.iter_pages() %}
             {% if page %}
                 {% if page == pagination.page %}
@@ -100,8 +100,8 @@
                 <li><a href="#">...</a></li>
             {% endif %}
         {% endfor %}
-        <li class="next {% if page == pagination.pages %}disabled{% endif %}">
-        <a href="{% if pagination.page == pagination.pages - 1 %}#{% else %}{{ url_for("browse", surah_no=surah_no, page=pagination.page+1) }}{% endif %}">Next &rarr;</a></li>
+        <li class="next {% if not pagination.has_next %}disabled{% endif %}">
+        <a href="{% if not pagination.has_next %}#{% else %}{{ url_for("browse", surah_no=surah_no, page=pagination.page+1) }}{% endif %}">Next &rarr;</a></li>
 	  </ul>
     </div>
     {% endif %}
