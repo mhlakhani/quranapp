@@ -5,7 +5,6 @@ from xhtml2pdf import pisa
 import logging, sys, os
 import redis
 import zipfile
-import tempfile
 
 try:
     import cStringIO as StringIO
