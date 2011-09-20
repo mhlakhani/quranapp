@@ -27,7 +27,7 @@
 <div class="row">
 <div class="span4 columns offset1">
     <div class="alert-message block-message leftnavbar">
-        <p>Once you're done, hit the button below to save the ordering, and then download the document as PDF or HTML.</p>
+        <p>Once you're done, hit the button below to save the ordering, and then download the document as PDF, HTML or Word.</p>
         <form method="post" action="{{ request.url }}">
         <fieldset>
             <input type="hidden" id="ordering" name="ordering" value=""></input>
@@ -41,6 +41,11 @@
         <form method="post" action="{{ url_for("create", format="html") }}">
         <fieldset>
                 <button type="submit" class="btn primary">Download HTML</button>
+        </fieldset>
+        </form>
+        <form method="post" action="{{ url_for("create", format="docx") }}">
+        <fieldset>
+                <button type="submit" class="btn primary">Download Word</button>
         </fieldset>
         </form>
     </div>

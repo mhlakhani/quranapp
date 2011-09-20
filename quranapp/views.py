@@ -4,6 +4,8 @@ from flask import g, request, render_template, session, redirect, url_for, send_
 from xhtml2pdf import pisa
 import logging, sys, os
 import redis
+import zipfile
+import tempfile
 
 try:
     import cStringIO as StringIO
@@ -122,7 +124,7 @@ def create(format):
     items = Ayat.get_many(selected_ayats)
     ordering = dict([(v,k) for (k,v) in enumerate(selected_ayats)])
     items.sort(key = lambda x: ordering[x.id])
-    if format not in ['pdf', 'html']:
+    if format not in ['pdf', 'html', 'docx']:
         format = 'html'
     out_file = os.path.join(os.getcwd(), 'out.%s' % format)
     input = render_template('output_%s.html' % format, **locals())
@@ -131,5 +133,14 @@ def create(format):
         print>>output, input.encode('utf-8')
     elif format == 'pdf':
         result = pisa.pisaDocument(input, output)
+    elif format == 'docx':
+        zipin = zipfile.ZipFile(app.open_resource('templates/word_template.docx'), 'r')
+        zipout = zipfile.ZipFile(output, 'a')
+        file_list = [x for x in zipin.namelist() if x != 'word/document.xml']
+        for filename in file_list:
+            zipout.writestr(filename, zipin.read(filename))
+        zipout.writestr('word/document.xml', input.encode('utf-8'))
+        zipin.close()
+        zipout.close()
     output.seek(0)
     return send_file(output, as_attachment=True, attachment_filename='download.%s' % format)
