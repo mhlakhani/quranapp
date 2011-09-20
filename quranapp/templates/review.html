@@ -43,6 +43,11 @@
                 <button type="submit" class="btn primary">Download HTML</button>
         </fieldset>
         </form>
+        <form method="post" action="{{ url_for("create", format="docx") }}">
+        <fieldset>
+                <button type="submit" class="btn primary">Download DOCX</button>
+        </fieldset>
+        </form>
     </div>
 </div>
 <div class="span10 columns offset1">
