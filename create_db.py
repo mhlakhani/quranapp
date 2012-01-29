@@ -49,7 +49,7 @@ def add_ayats():
     fil_english.close()
 
 def create_image(x):
-    text = Ayat.query.get(x).arabic
+    text = Ayat.get(x).arabic
     path = os.path.join(os.getcwd(), 'quranapp', 'static', 'image', '%s.jpeg' % x)
     os.system('pango-view --font="Scheherazade 28" --no-display --width=600 --output="%s" --text="%s"' % (path, text.encode('utf-8')))
 
@@ -66,8 +66,8 @@ def main():
     g.redis = redis.Redis(host='localhost', port=6379)
     add_surahs()
     add_ayats()
-    ctx.pop()
     create_images()
+    ctx.pop()
 
 if __name__ == '__main__':
     main()
