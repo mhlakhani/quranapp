@@ -50,7 +50,7 @@ p.arabic {
         {% if include_english %}
         <li><p>{{ item.english }}</p></li>
         {% endif %}
-        <li><p>Ref: <strong>{{ item.surah_id }}:{{ item.number }}</strong></p></li> 
+        <li><p>{{ surah_dict[item.surah_id].name_english_transliterated }}, <strong>{{ item.surah_id }}:{{ item.number }}</strong></p></li> 
     </ul>
     {% endfor %}
     </div>

@@ -121,6 +121,8 @@ def create(format):
         selected_ayats = [int(x) for x in session['selected'].split(':')]
     locals().update(session)
     items = Ayat.get_many(selected_ayats)
+    surah_list = Surah.get_all()
+    surah_dict = dict(zip([x+1 for x in xrange(0, len(surah_list))], surah_list))
     ordering = dict([(v,k) for (k,v) in enumerate(selected_ayats)])
     items.sort(key = lambda x: ordering[x.id])
     if format not in ['pdf', 'html', 'docx']:

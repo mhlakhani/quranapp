@@ -42,7 +42,7 @@ p {
         {% if include_english %}
         <li><p style='-pdf-keep-with-next;' align='left'>{{ item.english }}</p></li>
         {% endif %}
-        <li><p align='left'>Reference: <strong>{{ item.surah_id }}:{{ item.number }}</strong></p></li>
+        <li><p align='left'>{{ surah_dict[item.surah_id].name_english_transliterated }}, <strong>{{ item.surah_id }}:{{ item.number }}</strong></p></li>
     </ul>
     {% endfor %}
     </div>
