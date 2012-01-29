@@ -32,7 +32,7 @@
 				<div class="input">
                     <select name="surah_no">
                         {% for surah in surah_list %}
-                            <option value="{{ surah.id }}" {% if surah.id == surah_no %} selected {% endif %} >{{ surah.name_english_transliterated }}</option>
+                        <option value="{{ surah.id }}" {% if surah.id == surah_no %} selected {% endif %} >{{surah.id }}. {{ surah.name_english_transliterated }}</option>
                             {% endfor %}
 					</select>
 				</div>
