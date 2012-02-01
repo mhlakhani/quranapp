@@ -1,6 +1,8 @@
 from flask import Flask
 import os
+import sessions
 app = Flask(__name__)
+app.session_interface = sessions.RedisSessionInterface()
 
 import quranapp.config
 app.config.from_object('quranapp.config.DefaultConfig')
