@@ -1,6 +1,6 @@
 from quranapp import app
 from quranapp.models import Ayat, Surah
-from flask import g, request, render_template, session, redirect, url_for, send_file
+from flask import g, request, render_template, session, redirect, url_for, send_file, abort
 from xhtml2pdf import pisa
 import logging, sys, os
 import redis
@@ -10,6 +10,11 @@ try:
     import cStringIO as StringIO
 except Exception:
     import StringIO #FIXME: log this
+
+try:
+    import simplejson as json
+except Exception:
+    import json
 
 def int_or_none(var, method='POST'):
     attr = {'POST':'form', 'GET':'args'}
@@ -34,45 +39,42 @@ def index():
 def about():
     return render_template('about.html')
 
-@app.route('/browse/', defaults={'surah_no': 1, 'page': 1}, methods=['GET', 'POST'])
-@app.route('/browse/<int:surah_no>/<int:page>', methods=['GET', 'POST'])
+@app.route('/browse/', defaults={'surah_no': 1, 'page': 1})
+@app.route('/browse/<int:surah_no>/<int:page>')
 def browse(surah_no, page):
-    post_ayat = None
     per_page = 10
     selected_ayats = [] # FIXME: start using ordered sets here
-    surah = None
-    jump_ayat = None
     if session.get('selected') is not None and session.get('selected') != '':
         selected_ayats = [int(x) for x in session['selected'].split(':')]
-    if request.method == 'POST':
-        ayat = int_or_none('select')
-        post_surah = int_or_none('surah_no')
-        post_ayat = int_or_none('ayat_no')
-        if ayat is not None:
-            if session.new:
-                session['selected'] = ''
-            if ayat in selected_ayats:
-                selected_ayats = [x for x in selected_ayats if x != ayat]
-            else:
-                selected_ayats.append(ayat)
-            jump_ayat = Ayat.get(ayat).number
-            session['selected'] = ':'.join([str(x) for x in selected_ayats])
-        if post_surah is not None and 1 <= post_surah <= 114:
-            surah_no = post_surah
-        surah = Surah.get_or_404(surah_no)
-        if post_ayat is not None and post_ayat <= surah.num_ayats and post_ayat > 0:
-            page = (post_ayat - 1) / per_page + 1
-            session['jump_ayat'] = post_ayat
-            return redirect(url_for("browse", surah_no=surah_no, page=page))
-    if session.get('jump_ayat') is not None:
-        jump_ayat = session['jump_ayat']
-        session['jump_ayat'] = None
-    if surah is None:
-        surah = Surah.get_or_404(surah_no)
+    surah = Surah.get_or_404(surah_no)
     surah_name = surah.name_english_transliterated
     surah_list = Surah.get_all()
     pagination = surah.get_ayats(page=page, per_page=per_page)
-    return render_template('browse.html', **locals())
+    if not request.is_xhr:
+        return render_template('browse.html', **locals())
+    pages = [x+1 for x in xrange(0, pagination.pages)]
+    items = [x.to_dict() for x in pagination.items]
+    for item in items:
+        item['selected'] = (item['id'] in selected_ayats)
+    bismillah = pagination.items[0].bismillah
+    has_bismillah = (bismillah != None)
+    return json.dumps({'ayats':items, 'surah_no':surah_no, 'surah_name':surah_name, 'pages':pages, 'page':page, 'has_bismillah':has_bismillah, 'bismillah':bismillah})
+
+@app.route('/select_ayat', methods=['POST'])
+def select_ayat():
+    if not request.is_xhr:
+        abort(400)
+    selected_ayats = []
+    if session.get('selected') is not None and session.get('selected') != '':
+        selected_ayats = [int(x) for x in session['selected'].split(':')]
+    ayat_no = Ayat.get_or_404(request.json['ayat_no']).id
+    selected = request.json.get('selected', False)
+    if selected is True:
+        selected_ayats.append(ayat_no)
+    else:
+        selected_ayats = [int(x) for x in selected_ayats if x != ayat_no]
+    session['selected'] = ':'.join([str(x) for x in selected_ayats])
+    return json.dumps({'selected':selected})
 
 @app.route('/review/', methods=['GET', 'POST'])
 def review():

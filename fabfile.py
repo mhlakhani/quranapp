@@ -14,7 +14,7 @@ def compile_css():
     local('lessc quranapp/static/css/quranapp.less --compress > quranapp/static/quranapp.css')
 
 def compile_js():
-    local('java -jar tools/compiler.jar --js quranapp/static/js/jquery.tablednd_0_5.js --js_output_file quranapp/static/quranapp.js')
+    local('java -jar tools/compiler.jar --js quranapp/static/js/jquery.tablednd_0_5.js --js quranapp/static/js/knockout-2.0.0.js --js quranapp/static/js/sammy-latest.min.js --js_output_file quranapp/static/quranapp.js')
 
 def create_db():
     local('python create_db.py')

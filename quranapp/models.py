@@ -103,9 +103,24 @@ class Ayat(object):
     def __repr__(self):
         return '<Surah %s Ayat %s>' % (self.surah_id, self.number)
 
+    def to_dict(self):
+        return {    'id'        : self.id,
+                    'surah_id'  : self.surah_id,
+                    'number'    : self.number,
+                    'arabic'    : self.arabic,
+                    'english'   : self.english,
+                    'bismillah' : self.bismillah }
+
     @staticmethod
     def get(id):
         st = g.redis.hget(app.config['DB_AYAT_KEY'], id)
+        return pickle.loads(st)
+
+    @staticmethod
+    def get_or_404(id):
+        st = g.redis.hget(app.config['DB_AYAT_KEY'], id)
+        if st is None:
+            abort(404)
         return pickle.loads(st)
 
     @staticmethod
