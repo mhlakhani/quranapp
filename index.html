@@ -1,0 +1,927 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+    <title>QuranApp</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+    body {
+      padding-top: 70px;
+    }
+    footer {
+      padding: 30px 0;
+    }
+    h4.arabic {
+      font-family: "Scheheraza";
+      font-size: 3.2em;
+      line-height: 1.4em;
+      letter-spacing: 1px;
+      color: #000000;
+      direction: rtl;
+      text-align: right;
+      font-weight: normal;
+      margin-bottom: 9px;
+    }
+    @font-face{font-family:"Scheheraza";src:local("Scheherazade"),url(/static/fonts/Scheherazade.ttf) format("truetype");}
+    </style>
+
+  </head>
+
+  <body>
+    <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand">QuranApp</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-left">
+            <li class="active"><a href="#about" data-toggle="tab" id="aboutTabNav">About</a></li>
+            <li><a href="#browse" data-toggle="tab" id="browseTabNav">Browse</a></li>
+            <li><a href="#review" data-toggle="tab" id="reviewTabNav">Review</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="row row-offcanvas row-offcanvas-right">
+
+        <div class="tab-content">
+
+
+          <div class="tab-pane active" id="about">
+            <h1>Welcome to QuranApp!</h1>
+            <p>QuranApp allows you to easily create PDF, HTML and Word collections of various Ayats, allowing you to print them out and distribute them with ease.</p>
+            <h2>Usage</h2>
+            <p>In just a few minutes, you can create your own documents, no signup required. Just follow these steps: </p>
+            <h3>1. Select</h3>
+            <p>Use the <strong>Browse Quran</strong> link to view and select the Ayats you wish to add to your collection. Click on an Ayat to select it, or shift-click to select multiple.</p>
+            <h3>2. Review</h3>
+            <p>Use the <strong>Review</strong> link to review your selection and arrange it however you wish </p>
+            <h3>3. Download &amp; Review</h3>
+            <p>Just hit the download button to download the collection in your preferred format. PDF is intended for print &amp; distribution, while HTML is intended for storing locally and providing text you can copy into other programs. You can use the Word format to work with your collection in Microsoft Word, which is ideal for editing purposes.</p>
+            <h2>Contact</h2>
+            <p>For any comments or suggestions, please email <a href="mailto:m.hasnain.lakhani@gmail.com">m.hasnain.lakhani@gmail.com</a></p>
+            <h2>Data Sources</h2>
+            <p>All data was taken from <a href="http://tanzil.net/">tanzil.net</a>. The English translation is by Muhammad Taqi-ud-Din al-Hilali and Muhammad Muhsin Khan</p>
+            <p><strong>Note:</strong> For Word file usage, please ensure the Scheherazade font is installed on your system. <a href="http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=Scheherazade">It is available at this link.</a></p>
+            <h2>Contribute</h2>
+            <p>The code is available on <a href="https://github.com/mhlakhani/quranapp">Github</a>. Please contribute there or add issues for feature requests.</p>
+          </div>
+
+
+
+
+          <div class="tab-pane" id="browse">
+
+            <div class="col-xs-3 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+              <div class="list-group">
+                <p class="list-group-item list-group-item-info">Surah #<strong data-bind="text: browseSuraNo"></strong> <strong data-bind="text: browseSuraName"></strong></p> 
+                <form class="form-vertical list-group-item" action="#" method="get">
+                  <strong>Go to Surah:</strong>
+                  <br>
+                  <br>
+                  <select class="form-control" id="browseSelectSurah" data-bind="options: browseSuraList, optionsText: 'text', value: browseSelectedSura, event: { change: onBrowseChangeSura }">
+                  </select>
+                  <br>
+                </form>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-9">
+              <h4 data-bind="text: browseSuraAyaHeader"></h4>
+              <div class="row">
+                <table class="table" id="browseAyaTable">
+                  <thead data-bind="if: hasBismillah">
+                    <tr>
+                      <td>
+                        <div class="list-group-item">
+                          <h4 class="arabic list-group-item-heading" data-bind="text: bismillah"></h4>
+                          <br>
+                          <p class="list-group-item-text"></p>
+                        </div>
+                      </td>
+                    </tr>
+                  </thead>
+                  <tbody class="list-group" data-bind="foreach: browseAyas, scroll: browsePage <= browsePages, scrollOptions: { loadFunc: onBrowseScrollDown }">
+                    <tr data-bind="click: $parent.onBrowseAyaClick">
+                      <td>
+                        <div class="list-group-item" data-bind="css: { 'list-group-item-info': selected}">
+                          <span class="badge" style="float: left" data-bind="text: ayaNo"></span>
+                          <h4 class="arabic list-group-item-heading" lang="ar" data-bind="text: arabic, attr: {id: 'browseAya' + index}"></h4>
+                          <br>
+                          <p class="list-group-item-text" data-bind="text: english"></p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+
+          </div>
+
+
+
+          <div class="tab-pane" id="review">
+
+            <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+              <div class="list-group">
+                <p class="list-group-item list-group-item-info"><strong>Selection Options</strong></p> 
+                <form class="form-vertical list-group-item">
+                  <div class="form-group">
+                    <label for="reviewEditAyasByNumber">Add/Remove Ayas by Number</label>
+                    <input type="text" class="form-control" id="reviewEditAyasByNumber" placeholder="e.g. (1:2-6, 5:11 114)">
+                  </div>
+                  <button type="button" class="btn btn-primary" id="reviewAddAyasByNumberButton" data-bind="click: onReviewAddAyasByNumberClick">Add Ayas</button>
+                  <button type="button" class="btn btn-danger" id="reviewDeleteAyasByNumberButton" data-bind="click: onReviewDeleteAyasByNumberClick">Remove Ayas</button>
+
+                  <br class="clearfix" />
+                  <br>
+                  <div id="reviewEditAyasByNumberAlertPlaceholder">
+                  </div>
+                </form>
+
+                <div class="list-group-item">
+                  <button type="button" class="btn btn-danger" id="reviewRemoveSelectedItems" data-bind="click: onReviewRemoveSelectedItemsClick">Remove selected items</button>
+                  <br class="clearfix" />
+                  <br />
+                  <button type="button" class="btn btn-danger" id="reviewRemoveAllItems" data-bind="click: onReviewRemoveAllItemsClick">Remove all items</button>
+                </div>
+                
+                <p class="list-group-item list-group-item-info"><strong>Output Options</strong></p> 
+                <form class="form-vertical list-group-item">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" id="reviewIncludeArabic" data-bind="checked: reviewIncludeArabic">
+                      Include Arabic Verses
+                    </label>
+                  </div>
+                   <div class="checkbox">
+                    <label>
+                      <input type="checkbox" value="" id="reviewIncludeEnglish" data-bind="checked: reviewIncludeEnglish">
+                      Include English Translation
+                    </label>
+                  </div>
+                </form>
+
+                <p class="list-group-item list-group-item-info"><strong>Download Options</strong></p> 
+                <div class="list-group-item"><button type="button" class="btn btn-primary" id="reviewDownloadHTML" data-bind="click: onReviewDownloadHTMLClick">Download HTML</button></div>
+                <div class="list-group-item"><button type="button" class="btn btn-primary" id="reviewDownloadPDF" data-bind="click: onReviewDownloadPDFClick">Download PDF</button></div>
+                <div class="list-group-item"><button type="button" class="btn btn-primary" id="reviewDownloadWord" data-bind="click: onReviewDownloadWordClick">Download Word</button></div>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-9">
+              <h4>Review Selection</h4>
+              <div class="row" id="reviewAyaDiv">
+                <table class="table" id="reviewAyaTable">
+                  <tbody class="list-group" data-bind="foreach: reviewAyas">
+                    <tr data-bind="click: $parent.onReviewAyaClick">
+                      <td>
+                        <div class="list-group-item" data-bind="css: { 'list-group-item-info': selected}">
+                          <span class="badge" style="float: left" data-bind="text: suraNoAyaNo"></span>
+                          <h4 class="arabic list-group-item-heading" lang="ar" data-bind="text: arabic, attr: {id: 'reviewAya' + index}"></h4>
+                          <br data-bind="click: $parent.onReviewAyaClick">
+                          <p class="list-group-item-text" data-bind="text: english"></p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+              </table>
+
+              </div>
+            </div>
+            
+          </div>
+
+
+
+          
+        </div>
+
+        
+
+        
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; Hasnain Lakhani 2014</p>
+      </footer>
+
+    </div>
+
+
+
+    <script src="/static/js/jquery-2.1.0.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/jspdf.min.js"></script>
+    <script src="/static/js/knockout-3.1.0.js"></script>
+    <script src="/static/js/jszip.min.js"></script>
+    <script src="/static/js/FileSaver.js"></script>
+    <script src="/static/js/Blob.js"></script>
+
+    <script type="text/javascript">
+(function($) {
+
+  ko.bindingHandlers.scroll = {
+    updating: true,
+    init: function(element, valueAccessor, allBindingsAccessor) {
+        var self = this
+        self.updating = true;
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+              $(window).off("scroll.ko.scrollHandler")
+              self.updating = false
+        });
+    },
+    update: function(element, valueAccessor, allBindingsAccessor){
+      var props = allBindingsAccessor().scrollOptions
+      var offset = props.offset ? props.offset : "0"
+      var loadFunc = props.loadFunc
+      var load = ko.utils.unwrapObservable(valueAccessor());
+      var self = this;
+
+      if(load){
+        element.style.display = "";
+        $(window).on("scroll.ko.scrollHandler", function(){
+          if(($(document).height() - offset <= $(window).height() + $(window).scrollTop())){
+            if(self.updating){
+              loadFunc()
+              self.updating = false;
+            }
+          }
+          else{
+            self.updating = true;
+          }
+        });
+      }
+      else{
+          element.style.display = "none";
+          $(window).off("scroll.ko.scrollHandler")
+          self.updating = false
+      }
+    }
+  }
+
+  var AYAS_PER_PAGE = 20;
+
+  function Aya(item)
+  {
+      var self = this;
+      self.id = ko.observable(item.id);
+      self.ayaNo = ko.observable(item.ayaNo);
+      self.suraNo = ko.observable(item.suraNo);
+      self.end = navigator.userAgent.indexOf("Firefox") > -1? item.end : " \u06DD";
+      self.arabic = ko.observable(item.arabic + self.end);
+      self.english = ko.observable(item.english);
+      self.bismillah = item.bismillah;
+      self.selected = ko.observable(item.selected);
+      self.index = item.index;
+      self.suraNoAyaNo = ko.observable("" + item.suraNo + ":" + item.ayaNo);
+
+      self.toggleSelect = function () {
+        self.selected(!self.selected());
+      }
+  }
+
+  function AyaModel(suras, allAyas) {
+    var self = this;
+    self.suras = suras;
+    self.allAyas = allAyas;
+    self.browseAyas = ko.observableArray([]);
+    self.browseSuraNo = ko.observable(1);
+    self.hasBismillah = ko.observable(false);
+    self.bismillah = ko.observable("");
+    self.browseSuraName = ko.observable("");
+    self.reviewVisibleAyas = ko.observableArray([]);
+    self.browseSelectedAyas = {};
+    self.browseLastSelectedAyaIndex = 0;
+    self.browsePage = 0;
+    self.browsePages = 0;
+    
+    self.browseSuraList = $.map(suras, function(sura) { return { index: sura.index, text: "" + sura.index + ". " + sura.tname } });
+    self.browseSelectedSura = ko.observable(self.browseSuraList[0]);
+
+    self.browseSuraAyaHeader = ko.computed(function() {
+      var name = self.browseSuraName();
+      var ayas = self.browseAyas();
+      if (ayas.length > 0) {
+        return name + ": Verses " + ayas[0].ayaNo() + " to " + ayas[ayas.length-1].ayaNo();
+      } else {
+        return "";
+      }
+    });
+
+    self.browseAddPageOfAyas = function() {
+      if (self.browsePage >= self.browsePages) {
+        return;
+      }
+      var sura = self.suras[self.browseSuraNo()];
+      var counter = 0;
+      if (self.browseAyas().length > 0) {
+        counter = self.browseAyas()[self.browseAyas().length - 1].index + 1;
+      }
+      var mappedAyas = $.map(sura.ayas.slice(AYAS_PER_PAGE*self.browsePage, AYAS_PER_PAGE*(self.browsePage+1)), function(item) {
+        var bismillah = "";
+        if ('bismillah' in item) {
+          bismillah = item.bismillah;
+        }
+        var aya = new Aya({
+          id: item.id,
+          ayaNo: item.ayaNo,
+          suraNo: item.suraNo,
+          arabic: item.arabic,
+          english: item.english,
+          end: item.end,
+          bismillah: bismillah,
+          selected: item.id in self.browseSelectedAyas,
+          index: counter
+          });
+          counter++;
+          return aya;
+      });
+    
+      if (mappedAyas.length > 0 && mappedAyas[0].bismillah != "") {
+        self.hasBismillah(true);
+        self.bismillah(mappedAyas[0].bismillah);
+      } else {
+        self.hasBismillah(false);
+        self.bismillah("");
+      }
+      for (var i in mappedAyas) {
+        self.browseAyas.push(mappedAyas[i]);
+      }
+      self.browsePage++;
+    }
+
+    self.browseChangeSura = function(suraNo) {
+      var sura = self.suras[suraNo];
+      self.browseSuraNo(suraNo);
+      self.browseSuraName(sura.tname);
+      self.browsePage = 0;
+      self.browsePages = Math.ceil(sura.numAyas / AYAS_PER_PAGE);
+      self.browseAyas.removeAll();
+      self.browseAddPageOfAyas();
+    }
+
+    self.onBrowseAyaClick = function(aya, event) {
+      document.getSelection().removeAllRanges();
+
+      var start = aya.index;
+      var end = aya.index;
+      if (event.shiftKey) {
+        start = self.browseLastSelectedAyaIndex;
+      }
+
+      if (start != end) {
+        if (end < start) {
+          var tmp = start;
+          start = end;
+          end = tmp;
+        }
+        for (var i = start; i <= end; i++) {
+          self.browseAyas()[i].selected(true);
+          self.browseSelectedAyas[self.browseAyas()[i].id()] = true;
+        }
+      } else {
+        aya.toggleSelect();
+        if (aya.selected()) {
+          self.browseSelectedAyas[aya.id()] = true;
+        } else {
+          delete self.browseSelectedAyas[aya.id()];
+        }
+      }
+
+      self.browseLastSelectedAyaIndex = aya.index;
+    }
+
+    self.onBrowseChangeSura = function() {
+      self.browseChangeSura(self.browseSelectedSura().index);
+    }
+
+    self.onBrowseScrollDown = function() {
+      self.browseAddPageOfAyas();
+    }
+
+
+    self.reviewSelectedAyas = {};
+    self.reviewLastSelectedAyaIndex = 0;
+    self.reviewIncludeArabic = ko.observable(true);
+    self.reviewIncludeEnglish = ko.observable(false);
+    self.reviewAyas = ko.computed(function() {
+      var counter = 0;
+      var mappedAyas = $.map(self.reviewVisibleAyas(), function(i) {
+        var item = self.allAyas[i];
+        var bismillah = "";
+        if ('bismillah' in item) {
+          bismillah = item.bismillah;
+        }
+        var aya = new Aya({
+          id: item.id,
+          ayaNo: item.ayaNo,
+          suraNo: item.suraNo,
+          arabic: item.arabic,
+          english: item.english,
+          end: item.end,
+          bismillah: bismillah,
+          selected: item.id in self.reviewSelectedAyas,
+          index: counter
+          });
+          counter++;
+          return aya;
+      });
+      return mappedAyas;
+    });
+
+    self.onReviewAyaClick = function(aya, event) {
+      document.getSelection().removeAllRanges();
+
+      var start = aya.index;
+      var end = aya.index;
+      if (event.shiftKey) {
+        start = self.reviewLastSelectedAyaIndex;
+      }
+
+      if (start != end) {
+        if (end < start) {
+          var tmp = start;
+          start = end;
+          end = tmp;
+        }
+        for (var i = start; i <= end; i++) {
+          self.reviewAyas()[i].selected(true);
+          self.reviewSelectedAyas[self.reviewAyas()[i].id()] = true;
+        }
+      } else {
+        aya.toggleSelect();
+        if (aya.selected()) {
+          self.reviewSelectedAyas[aya.id()] = true;
+        } else {
+          delete self.reviewSelectedAyas[aya.id()];
+        }
+      }
+
+      self.reviewLastSelectedAyaIndex = aya.index;
+    }
+
+    self.onReviewRemoveSelectedItemsClick = function() {
+      var array = [];
+      $.map(self.reviewAyas(), function(aya) {
+        if (!aya.selected()) {
+          array.push(aya.id());
+        } else {
+          delete self.reviewSelectedAyas[aya.id()];
+        }
+      });
+      self.reviewVisibleAyas(array);
+    }
+
+    self.onReviewRemoveAllItemsClick = function() {
+      $.map(self.reviewAyas(), function(aya) {
+        delete self.reviewSelectedAyas[aya.id()];
+      });
+      self.reviewVisibleAyas([]);
+    }
+
+    self.onReviewEditAyasByNumber = function(processor) {
+      $("#reviewEditAyasByNumberAlert").alert('close');
+      var ranges = $("#reviewEditAyasByNumber").val();
+      var split = ranges.split(" ");
+      split = $.map(split, function(i) { return i.split(","); });
+
+      var showErrorAlert = function(message) {
+        var html = "<div class=\"alert alert-danger alert-dismissable\" id=\"reviewEditAyasByNumberAlert\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button><strong>Error!</strong> " + message + " </div>";
+        $("#reviewEditAyasByNumberAlertPlaceholder").html(html);
+      }
+
+      $.each(split, function(i, range) {
+        if (range.length == 0) {
+          return;
+        }
+        var parts = range.split(":");
+
+        if (parts.length == 1) {
+          var suraNo = parseInt(parts[0]);
+
+          if (!(suraNo in self.suras)) {
+            showErrorAlert("Invalid Sura Number " + suraNo);
+            return;
+          }
+
+          var newAyas = processor(self.reviewVisibleAyas(), self.suras[suraNo].ayas);
+          self.reviewVisibleAyas(newAyas);
+
+        } else if (parts.length == 2) {
+          var suraNo = parseInt(parts[0]);
+          var subrange = parts[1].split("-");
+
+          if (!(suraNo in self.suras)) {
+            showErrorAlert("Invalid Sura Number " + suraNo);
+            return;
+          }
+
+          if (subrange.length == 1) {
+            var ayaNo = parseInt(subrange[0]) - 1;
+
+            if (!(ayaNo in self.suras[suraNo].ayas)) {
+              showErrorAlert("Invalid Aya Number " + suraNo + ":" + (ayaNo + 1));
+              return;
+            }
+
+            var newAyas = processor(self.reviewVisibleAyas(), [self.suras[suraNo].ayas[ayaNo]]);
+            self.reviewVisibleAyas(newAyas);
+
+          } else if (subrange.length == 2) {
+            var start = parseInt(subrange[0]) - 1;
+            var end = parseInt(subrange[1]) - 1;
+
+            if (!(start in self.suras[suraNo].ayas) || !(end in self.suras[suraNo].ayas)) {
+              showErrorAlert("Invalid Range " + suraNo + ":" + (start + 1) + "-" + (end + 1));
+              return;
+            }
+
+            var newAyas = processor(self.reviewVisibleAyas(), self.suras[suraNo].ayas.slice(start, end+1));
+            self.reviewVisibleAyas(newAyas);
+
+          } else {
+            showErrorAlert("Invalid Range Syntax: " + range);
+            return;
+          }
+        } else {
+          showErrorAlert("Invalid Range Syntax: " + range);
+          return;
+        }
+      });
+    }
+
+    self.onReviewAddAyasByNumberClick = function() {
+      var processor = function(current, additional) {
+        var newAyas = current;
+        $.each(additional, function(i, aya) {
+          aya = self.allAyas[aya.id];
+          if (newAyas.indexOf(aya.id) == -1) {
+            newAyas.push(aya.id);
+          }
+        });
+        return newAyas;
+      }
+      self.onReviewEditAyasByNumber(processor);
+    }
+
+    self.onReviewDeleteAyasByNumberClick = function() {
+      var processor = function(current, additional) {
+        var newAyas = [];
+        $.each(current, function(i, id) {
+          console.log(id);
+          aya = self.allAyas[id];
+          console.log(aya);
+          if (additional.indexOf(aya) == -1) {
+            newAyas.push(aya.id);
+          }
+        });
+        return newAyas;
+      }
+      self.onReviewEditAyasByNumber(processor);
+    }
+
+    self.identifyRuns = function(ayas) {
+      var runs = [];
+      var currentRun = {sura: null, start: null, end: null, ayas: []};
+      $.map(ayas, function(i) {
+        var aya = self.allAyas[i];
+        var ayaNo = aya.ayaNo;
+        var suraName = self.suras[aya.suraNo].tname;
+
+        if (currentRun.sura == suraName && currentRun.end == (ayaNo - 1)) {
+          currentRun.ayas.push(aya.id);
+          currentRun.end += 1;
+        } else {
+          if (currentRun.sura !== null) {
+            runs.push(currentRun);
+          }
+
+          if ((ayaNo == 1) && (aya.suraNo != 1) && (aya.suraNo != 9)) {
+            currentRun = {sura: suraName, start: ayaNo, end: ayaNo, ayas: [1, aya.id]}
+          } else {
+            currentRun = {sura: suraName, start: ayaNo, end: ayaNo, ayas: [aya.id]}
+          }
+        }
+      });
+      if (currentRun.sura !== null)
+        runs.push(currentRun);
+      return runs;
+    }
+
+    self.onReviewDownloadPDFClick = function() {
+      var doc = new jsPDF('p', 'pt', 'letter');
+
+      var runTemplate = "Sura %%SURA_NAME%%: %%START%%-%%END%%";
+      var runs = self.identifyRuns(self.reviewVisibleAyas());
+      var runSnippets = $.map(runs, function(run) {
+        return runTemplate.replace("%%SURA_NAME%%", run.sura).replace("%%START%%", run.start).replace("%%END%%", run.end);
+      });
+
+      var fetchItems = function(items, callback) {
+        var newItems = [];
+        var received = 0;
+        newItems = $.map(items, function(item) {
+          var img = new Image();
+          img.onError = function() {
+            console.log("error loading image");
+            received = -1 * items.length - 1;
+          }
+          img.onload = function() {
+            received++;
+          }
+          img.src = item.url;
+          return {aya: item.aya, url: item.url, suraName: item.suraName, image: img}
+        });
+
+        var waiter = function() {
+          if (received < 0) {
+            console.log("error loading images!");
+            return;
+          } else if (received == items.length) {
+            callback(newItems);
+          } else {
+            setTimeout(waiter, 50);
+          }
+        }
+
+        waiter();
+      }
+
+      var createPDF = function(items) {
+
+        var headerFontSize = 16;
+        var fontSize = 12;
+        var x = 20;
+        var y = 10;
+        var page = 1;
+        var idx = 0;
+        var text = "";
+        var delta = 0;
+        var first = true;
+        $.each(runs, function(i, run) {
+          var addNewPageIfNeeded = function(delta) {
+            if ((y + delta) >= 780) {
+              doc.setFont('Times', 'Roman').setFontSize(fontSize);
+              doc.text(x, 780, "Generated by QuranApp: http://www.quranapp.net - Page #" + page);
+              doc.addPage();
+              page++;
+              y = 10;
+            }
+          }
+
+          if (!first) {
+            addNewPageIfNeeded(100000);
+          }
+          first = false;
+
+          text = doc.splitTextToSize(runSnippets[i], 560);
+          delta = 10 + (text.length + 1) * headerFontSize;
+          addNewPageIfNeeded(delta);
+          doc.setFont('Times', 'Bold').setFontSize(headerFontSize)
+          doc.text(x, y + headerFontSize, text);
+          y += delta;
+
+          if (self.reviewIncludeArabic()) {
+            for (var j = 0; j < run.ayas.length; j++) {
+              var item = items[j + idx];
+              delta = item.image.height*0.75 + 5;
+              addNewPageIfNeeded(delta);
+              doc.addImage(item.image, 'PNG', 15, y, 0, 0);
+              y += delta;
+            }
+          }
+
+          if (self.reviewIncludeEnglish()) {
+            for (var j = 0; j < run.ayas.length; j++) {
+              var item = items[j + idx];
+              doc.setFont('Times', 'Roman').setFontSize(fontSize);
+              var prefix = "" + item.aya.ayaNo + ". ";
+              text = doc.splitTextToSize(prefix+item.aya.english, 560);
+              delta = (text.length+2) * (fontSize+1);
+              addNewPageIfNeeded(delta);
+              doc.text(x, y + fontSize, text);
+              y += delta;
+            }
+          }
+
+          idx += run.ayas.length;
+        });
+        doc.setFont('Times', 'Roman').setFontSize(fontSize);  
+        doc.text(x, 780, "Generated by QuranApp: http://www.quranapp.net - Page #" + page);
+        doc.save('quranapp.pdf')
+      }
+
+      var ayas = [];
+      $.each(self.reviewVisibleAyas(), function(idx, i) {
+        var aya = self.allAyas[i];
+        if ((aya.ayaNo == 1) && (aya.suraNo != 1) && (aya.suraNo != 9)) {
+          ayas.push(self.allAyas[1]);
+        }
+        ayas.push(aya);
+      });
+
+      var items = $.map(ayas, function(aya) {
+        return {aya: aya, url: "/static/image/" + aya.id + ".png", suraName: "" + self.suras[aya.suraNo].tname + ", " + aya.suraNo + ":" + aya.ayaNo};
+      });
+
+      fetchItems(items, createPDF);
+    }
+
+    self.onReviewDownloadWordClick = function() {
+      var baseTemplate = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \
+<w:document xmlns:ve=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" xmlns:w10=\"urn:schemas-microsoft-com:office:word\" xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:wne=\"http://schemas.microsoft.com/office/word/2006/wordml\"><w:body>%%AYAS%%<w:p w:rsidR=\"000542C8\" w:rsidRDefault=\"000542C8\"/><w:sectPr w:rsidR=\"000542C8\" w:rsidSect=\"002D7065\"><w:footerReference w:type=\"default\" r:id=\"rId7\"/><w:pgSz w:w=\"12240\" w:h=\"15840\"/><w:pgMar w:top=\"1440\" w:right=\"1440\" w:bottom=\"1440\" w:left=\"1440\" w:header=\"720\" w:footer=\"720\" w:gutter=\"0\"/><w:cols w:space=\"720\"/><w:docGrid w:linePitch=\"360\"/></w:sectPr></w:body></w:document>";
+      var ayaTemplate = "%%ARABIC_SNIPPET%%<w:p w:rsidR=\"00A347C2\" w:rsidRPr=\"00A347C2\" w:rsidRDefault=\"00E633C4\" w:rsidP=\"00A347C2\"><w:pPr><w:numPr><w:ilvl w:val=\"0\"/><w:numId w:val=\"1\"/></w:numPr><w:spacing w:before=\"100\" w:beforeAutospacing=\"1\" w:after=\"100\" w:afterAutospacing=\"1\" w:line=\"240\" w:lineRule=\"auto\"/><w:ind w:left=\"0\"/><w:rPr><w:rFonts w:ascii=\"Times New Roman\" w:eastAsia=\"Times New Roman\" w:hAnsi=\"Times New Roman\" w:cs=\"Times New Roman\"/><w:sz w:val=\"31\"/><w:szCs w:val=\"31\"/><w:rtl/></w:rPr></w:pPr>%%ENGLISH_SNIPPET%%<w:r w:rsidR=\"00A347C2\" w:rsidRPr=\"00A347C2\"><w:rPr><w:rFonts w:ascii=\"Times New Roman\" w:eastAsia=\"Times New Roman\" w:hAnsi=\"Times New Roman\" w:cs=\"Times New Roman\"/><w:sz w:val=\"31\"/><w:szCs w:val=\"31\"/></w:rPr><w:t xml:space=\"preserve\">%%ENGLISH_SPACE%% %%SURA_NAME%%, </w:t></w:r><w:r w:rsidR=\"00A347C2\" w:rsidRPr=\"00A347C2\"><w:rPr><w:rFonts w:ascii=\"Times New Roman\" w:eastAsia=\"Times New Roman\" w:hAnsi=\"Times New Roman\" w:cs=\"Times New Roman\"/><w:b/><w:bCs/><w:sz w:val=\"31\"/><w:szCs w:val=\"31\"/></w:rPr><w:t>%%SURA_REF%%</w:t></w:r></w:p>";
+      var arabicSnippetTemplate = "<w:p w:rsidR=\"00A347C2\" w:rsidRPr=\"00B77661\" w:rsidRDefault=\"00A347C2\" w:rsidP=\"00A347C2\"><w:pPr><w:numPr><w:ilvl w:val=\"0\"/><w:numId w:val=\"1\"/></w:numPr><w:bidi/><w:spacing w:before=\"100\" w:beforeAutospacing=\"1\" w:after=\"75\" w:line=\"288\" w:lineRule=\"atLeast\"/><w:ind w:left=\"0\"/><w:rPr><w:rFonts w:ascii=\"Scheherazade\" w:eastAsia=\"Times New Roman\" w:hAnsi=\"Scheherazade\" w:cs=\"Scheherazade\"/><w:color w:val=\"000000\"/><w:spacing w:val=\"15\"/><w:sz w:val=\"67\"/><w:szCs w:val=\"67\"/></w:rPr></w:pPr><w:r w:rsidRPr=\"00B77661\"><w:rPr><w:rFonts w:ascii=\"Scheherazade\" w:eastAsia=\"Times New Roman\" w:hAnsi=\"Scheherazade\" w:cs=\"Scheherazade\"/><w:color w:val=\"000000\"/><w:spacing w:val=\"15\"/><w:sz w:val=\"67\"/><w:szCs w:val=\"67\"/><w:rtl/></w:rPr><w:t>%%ARABIC%%</w:t></w:r></w:p>";
+      var englishSnippetTemplate = "<w:r w:rsidRPr=\"00E633C4\"><w:rPr><w:rFonts w:ascii=\"Times New Roman\" w:eastAsia=\"Times New Roman\" w:hAnsi=\"Times New Roman\" w:cs=\"Times New Roman\"/><w:sz w:val=\"31\"/><w:szCs w:val=\"31\"/></w:rPr><w:t>%%ENGLISH%%</w:t></w:r>";
+
+      var ayas = $.map(self.reviewVisibleAyas(), function(i) {
+        var aya = self.allAyas[i];
+        var englishSpace = self.reviewIncludeEnglish() ? "    " : "";
+        var suraName = self.suras[aya.suraNo].tname;
+        var suraRef = "" + aya.suraNo + ":" + aya.ayaNo;
+        var englishSnippet = self.reviewIncludeEnglish() ? englishSnippetTemplate.replace("%%ENGLISH%%", aya.english) : "";
+        var arabicSnippet = self.reviewIncludeArabic() ? arabicSnippetTemplate.replace("%%ARABIC%%", aya.arabic) : "";
+
+        return ayaTemplate.replace("%%ARABIC_SNIPPET%%", arabicSnippet).replace("%%ENGLISH_SNIPPET%%", englishSnippet).replace("%%ENGLISH_SPACE%%", englishSpace).replace("%%SURA_NAME%%", suraName).replace("%%SURA_REF%%", suraRef);
+      });
+
+      var ayasSnippet = "";
+      $.each(ayas, function(i, aya) {
+        ayasSnippet = ayasSnippet + aya;
+      });
+
+      var wordTextFile = baseTemplate.replace("%%AYAS%%", ayasSnippet);
+
+      var xhr2_arraybuffer = new XMLHttpRequest();
+      xhr2_arraybuffer.open('GET', '/static/data/word_template.docx', true);
+      xhr2_arraybuffer.responseType = 'arraybuffer';
+
+      xhr2_arraybuffer.onreadystatechange = function(e) {
+        if (this.readyState == 4 && this.status == 200) {
+          var zip = new JSZip(this.response);
+          zip.remove("word/document.xml");
+          zip.file("word/document.xml", wordTextFile);
+          var blob = zip.generate({type: "blob"});
+          saveAs(blob, "quranapp.docx");
+        }
+      };
+      xhr2_arraybuffer.send();
+    }
+
+    self.onReviewDownloadHTMLClick = function() {
+      var generateHTMLFile = function(baseTemplate) {
+        var runTemplate = "<ul class=\"unstyled\"> \
+<h2>Sura %%SURA_NAME%%: %%START%%-%%END%%</h2> \
+</ul>";
+        var arabicAyaTemplate = "<ul class=\"unstyled\"> \
+%%SNIPPET%% \
+</ul>";
+        var englishAyaTemplate = "<ul class=\"unstyled\"> \
+%%SNIPPET%% \
+</ul>";
+
+        var arabicSnippetTemplate = "<li id=\"aya%%ID%%\"><p class=\"arabic\">%%ARABIC%%</p></li>";
+        var englishSnippetTemplate = "<li><p><b>%%AYA_NO%%. </b>%%ENGLISH%%</p></li>";
+
+        var ayas = [];
+        $.each(self.reviewVisibleAyas(), function(idx, i) {
+          var aya = self.allAyas[i];
+          if ((aya.ayaNo == 1) && (aya.suraNo != 1) && (aya.suraNo != 9)) {
+            ayas.push(self.allAyas[1]);
+          }
+          ayas.push(aya);
+        });
+
+        var arabicSnippets = $.map(ayas, function(aya) {
+          var arabicSnippet = arabicSnippetTemplate.replace("%%ARABIC%%", aya.arabic);
+          return arabicAyaTemplate.replace("%%SNIPPET%%", arabicSnippet).replace("%%ID%%", aya.id);
+        });
+
+        var englishSnippets = $.map(ayas, function(aya) {
+          var englishSnippet = englishSnippetTemplate.replace("%%ENGLISH%%", aya.english).replace("%%AYA_NO%%", aya.ayaNo);
+          return englishAyaTemplate.replace("%%SNIPPET%%", englishSnippet);
+        });
+
+        var runs = self.identifyRuns(self.reviewVisibleAyas());
+        var runSnippets = $.map(runs, function(run) {
+          return runTemplate.replace("%%SURA_NAME%%", run.sura).replace("%%START%%", run.start).replace("%%END%%", run.end);
+        });
+
+        var ayasSnippet = "";
+        var idx = 0;
+        $.each(runs, function(i, run) {
+          ayasSnippet = ayasSnippet + runSnippets[i];
+
+          if (self.reviewIncludeArabic()) {
+            for (var j = 0; j < run.ayas.length; j++) {
+              ayasSnippet = ayasSnippet + arabicSnippets[idx + j];
+            }
+          }
+
+          if (self.reviewIncludeEnglish()) {
+            for (var j = 0; j < run.ayas.length; j++) {
+              ayasSnippet = ayasSnippet + englishSnippets[idx + j];
+            }
+          }
+
+          idx += run.ayas.length;
+        });
+
+        return baseTemplate.replace("%%AYAS%%", ayasSnippet);
+      }
+      
+
+      var xhr2_text = new XMLHttpRequest();
+      xhr2_text.open('GET', '/static/data/html_template.html', true);
+      xhr2_text.responseType = 'text';
+
+      xhr2_text.onreadystatechange = function(e) {
+        if (this.readyState == 4 && this.status == 200) {
+          var generatedHTMLFile = generateHTMLFile(this.response);
+          var blob = new Blob([generatedHTMLFile], {type: "text/html;charset=utf-8"});
+          saveAs(blob, "quranapp.html");
+        }
+      };
+      xhr2_text.send();
+    }
+
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      if (e.target.id == "reviewTabNav") {
+        self.reviewVisibleAyas(Object.keys(self.browseSelectedAyas));
+      } else if (e.target.id == "browseTabNav") {
+        self.browseSelectedAyas = {};
+        $.each(self.reviewVisibleAyas(), function(k, v) {
+          self.browseSelectedAyas[v] = true;
+        });
+        $.each(self.browseAyas(), function(k, aya) {
+          if (aya.id() in self.browseSelectedAyas) {
+            aya.selected(true);
+          } else {
+            aya.selected(false);
+          }
+        });
+      }
+      window.scrollTo(0, 0);
+    });
+  }
+
+  $.getJSON("/static/data/data.json", function(allData) {
+    var allAyas = {};
+    var counter = 1;
+    $.map(allData.suras, function(sura) {
+      var ayaNo = 1;
+      $.map(sura.ayas, function(aya) {
+        aya.id = counter;
+        aya.suraNo = sura.index;
+        aya.ayaNo = ayaNo;
+        aya.selected = false;
+        allAyas[counter] = aya;
+        counter++;
+        ayaNo++;
+      });
+    });
+    var suras = allData.suras;
+    var model = new AyaModel(suras, allAyas);
+    model.browseChangeSura(1);
+    ko.applyBindings(model);
+    window.koModel = model;
+  });
+})(jQuery);
+    </script>
+
+  </body>
+</html>
